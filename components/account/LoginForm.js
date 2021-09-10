@@ -90,7 +90,7 @@ export default function LoginForm() {
                 onPress={() => doLogin()}
             />
             {
-                
+                loading &&
                 <Loading
                     isVisible={loading}
                     text="Iniciando Sesion..."
