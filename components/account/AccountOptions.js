@@ -4,39 +4,13 @@ import { StyleSheet, Text, View } from 'react-native'
 import { Icon, ListItem } from 'react-native-elements'
 import Modal from '../Modal'
 import ChangeDisplayNameForm from './ChangeDisplayNameForm'
+import ChangeEmailForm from './ChangeEmailForm'
 
-export default function AccountOptions({ user, toasRef }) {
+export default function AccountOptions({ user, toastRef, setReloadUser }) {
    
     const [showModal, setShowModal] = useState(false)
     const [renderComponent, setRenderComponent] = useState(null)
 
-    const selectedComponent = (key) => {
-        switch (key) {
-            case "displayName":
-                setRenderComponent(
-                   <ChangeDisplayNameForm 
-                        displayName={ user.displayName} 
-                        setShowModal={setShowModal} 
-                        toastRef={toasRef}
-                    />
-                )
-                break;
-            case "email":
-                setRenderComponent(
-                    <Text>email</Text>
-                )
-                break;
-            case "password":
-                setRenderComponent(
-                    <Text>password</Text>
-                )
-                break;
-        
-            default:
-                break;
-        }
-        setShowModal(true)
-    }
     const generateOptions =() => {
     
         return [
@@ -67,6 +41,38 @@ export default function AccountOptions({ user, toasRef }) {
     
         ]
     }
+
+    const selectedComponent = (key) => {
+        switch (key) {
+            case "displayName":
+                setRenderComponent(
+                   <ChangeDisplayNameForm 
+                        displayName={ user.displayName} 
+                        setShowModal={setShowModal}
+                        toastRef={toastRef}
+                        setReloadUser={setReloadUser}
+                    />
+                )
+                break;
+            case "email":
+                setRenderComponent(
+                   <ChangeEmailForm
+                        email={ user.email}
+                        setShowModal={setShowModal}
+                        toastRef={toastRef}
+                        setReloadUser={setReloadUser}
+                   />
+                )
+                break;
+            case "password":
+                setRenderComponent(
+                    <Text>password</Text>
+                )
+                break;
+        }
+        setShowModal(true)
+    }
+    
     const menuOptions = generateOptions()
     return (
         <View>
