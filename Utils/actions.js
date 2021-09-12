@@ -2,6 +2,8 @@ import {firebaseApp}from './firebase'
 import * as firebase from 'firebase'
 import 'firebase/firestore'
 
+import { fileToBlob } from './helpers'
+
 const db = firebase.default.firestore(firebaseApp)
 
 export const isUserLogged = () => {
@@ -38,6 +40,33 @@ export const loginWithEmailAndPassword = async(email,password) => {
     } catch (error) {
         result.statusResponse = false;
         result.error = "Usuario o contraseña no validos."
+    }
+    return result
+}
+
+export const uploadImage = async(image, path, name) => {
+    const result = { statusResponse: false, error: null, url: null}
+    const ref = firebase.default.storage().ref(path).child(name)
+    const blob = await fileToBlob(image)
+
+    try {
+        await ref.put(blob)
+        const url = await firebase.default.storage().ref(`${path}/${name}`).getDownloadURL()
+        result.statusResponse = true
+        result.url = url
+    } catch (error) {
+        result.error = error
+    }
+    return result
+}
+
+export const updateProfile = async(data) => {
+    const result = { statusResponse: true, error: null}
+    try {
+        await firebase.default.auth().currentUser.updateProfile(data)
+    } catch (error) {
+        result.error = error
+        result.statusResponse = false
     }
     return result
 }
