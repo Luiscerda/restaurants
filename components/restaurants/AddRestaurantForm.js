@@ -4,8 +4,10 @@ import { Button, Input, Icon, Avatar, Image } from 'react-native-elements'
 import CountryPicker from 'react-native-country-picker-modal'
 import { map, size, filter, isEmpty } from 'lodash'
 import MapView from 'react-native-maps'
+import uuid from 'random-uuid-v4'
 
 import { loadImageFromGallery, getCurrentLocation, validateEmail } from '../../Utils/helpers'
+import { uploadImage, getCurrentUser, addDocumentWithOutId } from '../../Utils/actions'
 import Modal from '../Modal'
 
 const widthScreen = Dimensions.get("window").width
@@ -20,11 +22,47 @@ export default function AddRestaurantForm({toastRef, setLoading, navigation}) {
     const [imagesSelected, setImagesSelected] = useState([])
     const [isVisibleMap, setIsVisibleMap] = useState(false)
     const [locationRestaurant, setLocationRestaurant] = useState(null)
-    const addRestaurant = () =>{
+    const addRestaurant = async() =>{
         if (!validForm()) {
             return
         }
-        console.log("Fuck yeahh!!")
+        setLoading(true)
+        const responseUploadImages = await uploadImages()
+        const restaurant = {
+            name: formData.name,
+            address: formData.address,
+            description: formData.description,
+            callingCode: formData.callingCode,
+            phone: formData.phone,
+            email: formData.email,
+            location: locationRestaurant,
+            images: responseUploadImages,
+            rating: 0,
+            ratingTotal: 0,
+            quantityVoting: 0,
+            createAt: new Date(),
+            createBy: getCurrentUser().uid
+        }
+        const responseAddDocument = await addDocumentWithOutId("restaurants", restaurant)
+        setLoading(false)
+        if (!responseAddDocument.statusResponse) {
+            toastRef.current.show("Error al grabar el restaurante, por favor intenta mas tarde.", 3000)
+            return
+        }
+        navigation.navigate("restaurants")
+    }
+
+    const uploadImages = async() => {
+        const imagesUrl = []
+        await Promise.all(
+            map(imagesSelected, async(image) => {
+                const response = await uploadImage(image, "restaurants", uuid())
+                if (response.statusResponse) {
+                    imagesUrl.push(response.url)
+                }
+            })
+        )
+        return imagesUrl
     }
 
     const validForm = () => {
