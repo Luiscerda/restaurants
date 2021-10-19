@@ -20,9 +20,15 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.luisk.restaurants",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
+      },
+      "config":{
+        "googleMaps":{
+          "apiKey": "AIzaSyCBn-aHZfUBb8UwYokpojeeQg6wJVszx6U"
+        }
       },
       "permissions":[
         "CAMERA_ROLL",
@@ -30,7 +36,8 @@
         "WRITE_EXTERNAL_STORAGE",
         "LOCATION",
         "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION"
+        "ACCESS_FINE_LOCATION",
+        "MEDIA_LIBRARY"
       ]
     },
     "web": {
