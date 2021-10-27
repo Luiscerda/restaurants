@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Alert, StyleSheet, Text, View } from 'react-native'
 import { Avatar } from 'react-native-elements/dist/avatar/Avatar'
 
-import { updateProfile, uploadImage } from '../../Utils/actions'
+import { updateDocument, updateProfile, uploadImage } from '../../Utils/actions'
 import { loadImageFromGallery } from '../../Utils/helpers'
 
 export default function InfoUser({ user, setLoading, setLoadingText}) {

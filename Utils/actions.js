@@ -170,3 +170,64 @@ export const getDocumenById = async(collection, id) => {
     }
     return result
 }
+
+export const updateDocument = async(collection, id, data) => {
+    const result = { statusResponse: true, error: null}
+    try {
+        await db.collection(collection).doc(id).update(data)
+    } catch (error) {
+        result.error = error
+        result.statusResponse = false
+    }
+    return result
+}
+
+export const getRestaurantsReviews = async(id) => {
+    const result = { statusResponse: true, error: null, reviews: []}
+    try {
+        const response = await db.collection("reviews").where("idRestaurant", "==", id).get()
+        response.forEach((doc) => {
+            const review = doc.data()
+            review.id = doc.id
+            result.reviews.push(review)
+        })
+    } catch (error) {
+        result.error = error
+        result.statusResponse = false
+    }
+    return result
+}
+
+export const getIsFavorite = async(idRestaurant) => {
+    const result = { statusResponse: true, error: null, isFavorite: false}
+    try {
+       const response = await db.collection("favorites")
+            .where("idRestaurant", "==", idRestaurant)
+            .where("idUser", "==", getCurrentUser().uid)
+            .get()
+        result.isFavorite = response.docs.length > 0
+
+    } catch (error) {
+        result.error = error
+        result.statusResponse = false
+    }
+    return result
+}
+
+export const removeFavorite = async(idRestaurant) => {
+    const result = { statusResponse: true, error: null}
+    try {
+       const response = await db.collection("favorites")
+            .where("idRestaurant", "==", idRestaurant)
+            .where("idUser", "==", getCurrentUser().uid)
+            .get()
+        response.forEach(async(doc) => {
+            const favoriteId = doc.id
+            await db.collection("favorites").doc(favoriteId).delete()
+        })
+    } catch (error) {
+        result.error = error
+        result.statusResponse = false
+    }
+    return result
+}

@@ -15,7 +15,7 @@ export default function Restaurants({ navigation }) {
     const [restaurants, setRestaurants] = useState([])
     const [loading, setLoading] = useState(false)
 
-    const limitRestaurants = 6
+    const limitRestaurants = 9
 
     useEffect(() => {
         firebase.auth().onAuthStateChanged((userInfo) => {
@@ -24,7 +24,8 @@ export default function Restaurants({ navigation }) {
     }, [])
 
     useFocusEffect(
-        useCallback(async() => {
+        useCallback(() => {
+            async function getData() {
                 setLoading(true)
                 const response = await getRestaurants(limitRestaurants)
                 if (response.statusResponse) {
@@ -32,8 +33,9 @@ export default function Restaurants({ navigation }) {
                     setRestaurants(response.restaurants)
                 }
                 setLoading(false)
-            },
-            [],
+            }
+            getData()  
+        },[],
         )
     )
 
