@@ -1,10 +1,13 @@
 import {firebaseApp}from './firebase'
+import { FireSQL } from 'firesql'
 import * as firebase from 'firebase'
 import 'firebase/firestore'
+import { map } from 'lodash'
 
 import { fileToBlob } from './helpers'
 
 const db = firebase.default.firestore(firebaseApp)
+const fireSql = new FireSQL(firebase.firestore(), { includeId: "id" })
 
 export const isUserLogged = () => {
     let isLogged = false
@@ -225,6 +228,61 @@ export const removeFavorite = async(idRestaurant) => {
             const favoriteId = doc.id
             await db.collection("favorites").doc(favoriteId).delete()
         })
+    } catch (error) {
+        result.error = error
+        result.statusResponse = false
+    }
+    return result
+}
+
+export const getFavorites = async() => {
+    const result = { statusResponse: true, error: null, favorites: []}
+    try {
+       const response = await db.collection("favorites")
+            .where("idUser", "==", getCurrentUser().uid)
+            .get()
+        await Promise.all(
+            map(response.docs, async(doc) => {
+                const favorite = doc.data()
+                const response2 = await  getDocumenById("restaurants", favorite.idRestaurant)
+                if (response2.statusResponse) {
+                    result.favorites.push(response2.document)
+                }
+            })
+        )
+    } catch (error) {
+        result.error = error
+        result.statusResponse = false
+    }
+    return result
+}
+
+export const getTopRestaurants = async(limit) => {
+    const result = { statusResponse: true, error: null, restaurants: []}
+    try {
+       const response = await db.collection("restaurants")
+            .orderBy("rating", "desc")
+            .limit(limit)
+            .get()
+        
+            response.forEach((doc) => {
+                const restaurant = doc.data()
+                restaurant.id = doc.id
+                result.restaurants.push(restaurant)
+            })
+
+    } catch (error) {
+        result.error = error
+        result.statusResponse = false
+    }
+    return result
+}
+
+export const searchRestaurants = async(criterial) => {
+    const result = { statusResponse: true, error: null, restaurants: []}
+    try {
+       result.restaurants = await fireSql.query(`SELECT * FROM restaurants WHERE name LIKE '${criterial}%'`)
+
     } catch (error) {
         result.error = error
         result.statusResponse = false

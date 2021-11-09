@@ -3,12 +3,11 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { Icon } from 'react-native-elements/dist/icons/Icon'
 
-import Restaurants from '../screens/restaurants/Restaurants'
-import Favorites from '../screens/Favorites'
-import TopRestaurants from '../screens/TopRestaurants'
-import Search from '../screens/Search'
 import AccountStack from './AccountStack'
 import RestaurantsStack from './RestaurantsStack'
+import FavoritesStack from './FavoritesStack'
+import TopRestaurantsStack from './TopRestaurantsStack'
+import SearchStack from './SearchStack'
 
 const Tab = createBottomTabNavigator()
 
@@ -62,17 +61,17 @@ export default function Navigations() {
                 />
                 <Tab.Screen
                     name="favorites"
-                    component={Favorites}
+                    component={FavoritesStack}
                     options={{title: "Favoritos"}}
                 />
                 <Tab.Screen
                     name="top-restaurants"
-                    component={TopRestaurants}
-                    options={{title: "Top 5"}}
+                    component={TopRestaurantsStack}
+                    options={{title: "Top 10"}}
                 />
                 <Tab.Screen
                     name="search"
-                    component={Search}
+                    component={SearchStack}
                     options={{title: "Buscar"}}
                 />
                 <Tab.Screen

@@ -1,9 +1,8 @@
-import React, { useRef, useState, useEffect, useCallback} from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import React, { useRef, useState, useEffect} from 'react'
+import { StyleSheet, Text, View} from 'react-native'
 import { Button } from 'react-native-elements'
 import { useNavigation} from '@react-navigation/native'
 import Toast from 'react-native-easy-toast'
-import { useFocusEffect } from '@react-navigation/native'
 
 import { closeSession, getCurrentUser } from '../../Utils/actions'
 import Loading from '../../components/Loading'
@@ -18,12 +17,6 @@ export default function UserLogged() {
     const [loadingText, setLoadingText] = useState("")
     const [user, setUser] = useState(null)
     const [reloadUser, setReloadUser] = useState(false)
-
-    useFocusEffect(
-        useCallback(() => {
-            setUser(getCurrentUser())
-        },[])
-    )
 
     useEffect(() => {
         setUser(getCurrentUser())

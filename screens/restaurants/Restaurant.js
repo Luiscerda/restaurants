@@ -9,7 +9,7 @@ import Toast from 'react-native-easy-toast'
 import CarouselImages from '../../components/CarouselImages'
 import Loading from '../../components/Loading'
 import { addDocumentWithOutId, getCurrentUser, getDocumenById, getIsFavorite, removeFavorite } from '../../Utils/actions'
-import { formatPhone } from '../../Utils/helpers'
+import { formatPhone, callNumber, sendEmail, sendWhatsApp } from '../../Utils/helpers'
 import MapRestaurant from '../../components/restaurants/MapRestaurant'
 import ListReviews from '../../components/restaurants/ListReviews'
 
@@ -22,6 +22,7 @@ export default function Restaurant( { navigation, route} ) {
     const [restaurant, setRestaurant] = useState(null)
     const [activeSlide, setActiveSlide] = useState(0)
     const [userLogged, setUserLogged] = useState(false)
+    const [currentUser, setCurrentUser] = useState(null)
     const [isFavorite, setIsFavorite] = useState(false)
     const [loading, setLoading] = useState(false)
 
@@ -29,6 +30,7 @@ export default function Restaurant( { navigation, route} ) {
 
     firebase.auth().onAuthStateChanged((user) => {
         user ? setUserLogged(true) : setUserLogged(false)
+        setCurrentUser(user)
     })
 
     
@@ -120,6 +122,9 @@ export default function Restaurant( { navigation, route} ) {
                 address={restaurant.address}
                 email={restaurant.email}
                 phone={formatPhone(restaurant.callingCode, restaurant.phone)}
+                currentUser={currentUser}
+                callingCode={restaurant.callingCode}
+                phoneNoFound={restaurant.phone}
            />
            <ListReviews
                 navigation={navigation}
@@ -131,12 +136,34 @@ export default function Restaurant( { navigation, route} ) {
     )
 }
 
-function RestaurantInfo({ name, location, address, email, phone}) {
+function RestaurantInfo({ name, location, address, email, phone, currentUser, callingCode, phoneNoFound}) {
     const listInfo = [
-        {text: address, iconName: "map-marker"},
-        {text: phone, iconName: "phone"},
-        {text: email, iconName: "at"},
+        { type: "addres", text: address, iconLeft: "map-marker"},
+        { type: "phone", text: phone, iconLeft: "phone", iconRight: "whatsapp"},
+        { type: "email", text: email, iconLeft: "at"},
     ]
+
+    const actionLeft = (type) => {
+       if (type == "phone") {
+           callNumber(phone)
+       }else if (type == "email") {
+           if (currentUser) {
+               sendEmail(email, "Interesado", `Soy ${currentUser.displayName}, estoy interezado en sus servicios`)
+           }else{
+               sendEmail(email, "Interesado", `Estoy interezado en sus servicios`)
+           }
+       }
+    }
+
+    const actionRight = (type) => {
+        if (type == "phone") {
+            if (currentUser) {
+                sendWhatsApp(`${callingCode}${phoneNoFound}`, `Soy ${currentUser.displayName}, estoy interezado en sus servicios`)
+            }else{
+                sendWhatsApp(`${callingCode}${phoneNoFound}`, "Interesado", `Estoy interezado en sus servicios`)
+            }
+        }
+    }
 
     return (
         <View style={styles.viewRestaurantInfo}>
@@ -156,12 +183,24 @@ function RestaurantInfo({ name, location, address, email, phone}) {
                     >
                         <Icon
                             type="material-community"
-                            name={item.iconName}
+                            name={item.iconLeft}
                             color="#442484"
+                            onPress={() => actionLeft(item.type)}
                         />
                         <ListItem.Content>
                             <ListItem.Title>{item.text}</ListItem.Title>
                         </ListItem.Content>
+                        {
+                            item.iconRight && (
+                                <Icon
+                                    type="material-community"
+                                    name={item.iconRight}
+                                    color="#442484"
+                                    onPress={() => actionRight(item.type)}                                
+                                />
+                            )
+                        }
+                        
                     </ListItem>
                     
                 ))
